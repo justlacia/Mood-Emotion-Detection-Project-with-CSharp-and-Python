@@ -1,0 +1,6 @@
+bin/
+obj/
+.vs/
+python/.venv/
+**/__pycache__/
+appsettings.local.json

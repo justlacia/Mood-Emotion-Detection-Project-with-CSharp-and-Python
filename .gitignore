@@ -11,3 +11,14 @@ detected_images/Abdullah_Gul_0006.jpg
 detected_images/Abdullah_Gul_0018.jpg
 detected_images/abdullah_gul.jpg
 runs/*
+
+# Modernized application: build products and private local settings
+**/bin/
+**/obj/
+**/.vs/
+**/.venv/
+**/__pycache__/
+**/appsettings.local.json
+*.user
+*.suo
+*.log

@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType><TargetFramework>net8.0-windows</TargetFramework>
+    <UseWindowsForms>true</UseWindowsForms><ImplicitUsings>enable</ImplicitUsings><Nullable>enable</Nullable>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Remove="tests\**\*.cs" />
+    <PackageReference Include="Microsoft.Data.SqlClient" Version="5.2.3" />
+    <Content Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <Content Include="python\**\*" Exclude="python\**\__pycache__\**;python\.venv\**" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+</Project>
