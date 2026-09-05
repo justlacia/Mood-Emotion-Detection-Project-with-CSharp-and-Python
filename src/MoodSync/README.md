@@ -1,8 +1,8 @@
-# MoodSync — Yenilenen Bitirme Projesinin Teknik Kurulumu
+# MoodSync — Kurulum
 
 Türkçe Windows Forms arayüzü, Python / YOLO yüz ifadesi analizi ve isteğe bağlı SQL Server hesap/geçmiş kaydı.
 
-Bu klasör, depodaki eski bitirme projesi uygulamasının yenilenen sürümünü içerir. Projenin amacı, eski–yeni sürüm karşılaştırması ve geliştirme planı için [ana README](../../README.md) dosyasını okuyun. Aşağıdaki komutlar bu klasörden çalıştırılmalıdır.
+Bitirme projemin güncel sürümü bu klasörde. Aşağıdaki komutları buradan çalıştırın. [Proje hakkında](../../README.md)
 
 ## Çalıştırma
 
@@ -49,6 +49,6 @@ Gerçek model entegrasyonunu kontrol etmek için test komutuna `-- <python.exe-t
 
 Görsel kontrol çıktısı: `MoodSync.exe --render-preview C:/tam/yol/preview.png`
 
-## Kaynak
+## Önceki sürüm
 
-Bu yenileme https://github.com/justlacia/Mood-Emotion-Detection-Project-with-CSharp-and-Python deposunun `3d8a708d0ca123147e29e4c5b2b516d089d97b5f` sürümü incelenerek oluşturuldu. Eğitimli model bu depodan korunmuştur. Eski kaynaklar depo kökünde, önceki açıklama `docs/README-legacy.md` içinde ve commit geçmişinde korunur. Depo, elifftosunn tarafından yayımlanan önceki çalışmadan çatallanmıştır; model bu yenileme sırasında yeniden eğitilmemiştir.
+Önceki model kullanılıyor. Eski kaynaklar depo kökünde; proje geçmişi ve kaynak bağlantısı [ana README'de](../../README.md).

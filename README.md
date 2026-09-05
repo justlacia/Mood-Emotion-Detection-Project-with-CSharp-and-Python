@@ -1,171 +1,51 @@
-# MoodSync — Bitirme Projemin Yenilenen Sürümü
+# MoodSync
 
-**C# Windows Forms ve Python / YOLO ile yüz ifadesi analizi ve müzik önerileri.**
+Bitirme projem için geliştirdiğim, fotoğraftaki yüz ifadesine göre müzik öneren masaüstü uygulaması. C# Windows Forms, Python/YOLO ve SQL Server kullanıyor.
 
-Bu depo, bitirme projem olarak üzerinde çalıştığım **ruh hali / duygu tespitine dayalı müzik öneri uygulamasının güncellenmiş sürümünü** içerir. İlk sürümde kurulan C#, Python ve SQL Server bağlantısını temel alarak uygulamayı daha düzenli, taşınabilir ve anlaşılır bir yapıya dönüştürmeyi amaçlıyorum.
+Bu sürümde eski uygulamanın arayüzünü yeniledim, kod yapısını düzenledim ve analiz sırasında karşılaşılan hataları düzelttim. Güncel kodlar `src/MoodSync` klasöründe; eski sürümün dosyaları depo kökünde duruyor.
 
-Bu güncellemede özellikle kullanıcı arayüzünü yeniledim; fotoğraf analizi sırasında yaşanabilecek hataları ele aldım, C#–Python iletişimini düzenledim ve kurulum ile test adımlarını dokümante ettim. Başlangıç fikri korunuyor: kullanıcının seçtiği bir fotoğraftaki yüz ifadesini analiz etmek ve o ana eşlik edebilecek müzikler önermek.
+![MoodSync arayüzü](docs/moodsync-preview.png)
 
-> **Sürüm durumu:** Fotoğraf yükleme, yerel model analizi ve kategori bazlı müzik önerileri çalışır durumdadır. Hesap ve kalıcı geçmiş için SQL Server yapılandırması gerekir. Öğrenen kişiselleştirme, eski verilerin aktarımı ve canlı veritabanı testleri henüz tamamlanmamıştır.
+## Neler değişti?
 
-## Yeni arayüz
+- Türkçe arayüz, fotoğraf önizlemesi ve müzik koleksiyonu eklendi.
+- C# ile Python arasındaki dosya tabanlı iletişim JSON'a taşındı.
+- Analiz sırasında arayüzün donması ve hatalı sonuçların işlenmesi düzeltildi.
+- Yüz bulunamadığında, güven skoru düşük olduğunda veya birden fazla yüz tespit edildiğinde hata mesajı gösteriliyor.
+- Parola saklama ve veritabanı bağlantıları düzenlendi.
+- SQL bağlantısı olmadan kullanılabilen misafir modu eklendi.
 
-![MoodSync — yenilenen masaüstü arayüzü](docs/moodsync-preview.png)
+## Kurulum
 
-Türkçe, koyu lacivert ve mor tonlarında bir arayüz kullanılır. Ana ekran fotoğraf seçimini, analiz durumunu ve müzik önerilerini aynı akışta toplar. Yan menüden analiz geçmişine, müzik koleksiyonuna ve hesap ekranına erişilebilir. Görsel bir tasarım maketi değil, Windows Forms uygulamasından alınmış ekran çıktısıdır.
-
-## Bitirme projesinin amacı
-
-Proje; masaüstü uygulama geliştirme, bir makine öğrenmesi modelinin uygulamaya entegrasyonu, veritabanı erişimi ve kullanıcı deneyimini bir araya getirir. Geliştirme sürecinde şu konulara odaklanıyorum:
-
-- C# arayüzü ile Python modelinin güvenilir biçimde haberleşmesi.
-- Kullanıcı girdilerinin kontrol edilmesi ve hataların anlaşılır mesajlarla gösterilmesi.
-- Fotoğraf analizi sırasında arayüzün kullanılabilir kalması.
-- Analiz geçmişinin kullanıcı hesabıyla ilişkilendirilmesi.
-- Kaynak kodun, ayarların, modelin ve testlerin düzenli tutulması.
-- Çalışan özelliklerle planlanan özelliklerin açıkça ayrılması.
-
-Model, yüz ifadesi için `positive`, `negative` veya `neutral` kategorilerinden birini tahmin eder. Bu tahmin kişinin gerçek ruh halini kesin olarak belirlemez ve tıbbi değerlendirme amacı taşımaz. Gösterilen güven skoru modelin tahmin skorudur.
-
-## Önceki sürüme göre neler değişti?
-
-| Alan | Önceki yaklaşım | Bu güncelleme |
-| --- | --- | --- |
-| Arayüz | İlk Windows Forms ekranları | Türkçe, kart tabanlı yeni ekranlar |
-| Proje kurulumu | C# proje dosyası depoda yoktu | .NET 8 proje dosyası ve kurulum yönergeleri |
-| Dosya yolları | Bir bilgisayara sabitlenmiş yollar | Uygulama konumundan bulunan model/betik; ayarlanabilir Python yolu |
-| C#–Python iletişimi | Ortak `output.txt` ve virgülle ayrılan metin | Süreç çıktısından doğrulanan JSON yanıtı |
-| Analiz sırasında bekleme | Arayüz iş parçacığında `WaitForExit` | Asenkron süreç yönetimi, süre sınırı ve iptal işleme |
-| Başarısız tespit | Yüz bulunamaması nötr sonuca dönüşebiliyordu | Yetersiz güven ve çoklu yüz için açık hata |
-| Veritabanı erişimi | Bağlantı yaşam döngüsü dağınıktı | Parametreli sorgular ve işlem sonunda kapatılan bağlantılar |
-| Parola saklama | Tek geçişli SHA-256 | Rastgele tuz ve 600.000 tur PBKDF2-SHA256 |
-| Dokümantasyon | İlk hedefleri anlatan README | Güncelleme açıklaması, kurulum, testler ve sınırlamalar |
-
-**Bu sürüm eski sürümün tüm özelliklerinin birebir aktarımı değildir.** Önceki tercih puanlama sistemi ve eski veritabanı kayıtları henüz yeni yapıya taşınmadı. Müzik önerileri sabit bir başlangıç koleksiyonundan ifade kategorisine göre seçilir; kullanıcıdan öğrenen bir öneri modeli olarak sunulmaz.
-
-## Kullanılabilir özellikler
-
-- JPG / JPEG / PNG seçme ve önizleme; 20 MB dosya sınırı ve görüntü boyutu kontrolü.
-- Python / YOLO ile bilgisayarda çalışan yüz ifadesi analizi.
-- En az 0,50 güven eşiği; tespit edilemeyen veya birden fazla geçerli yüz içeren fotoğraflarda açıklayıcı hata.
-- İfade kategorisi ve model güven skorunun gösterilmesi.
-- Kategori bazlı müzik önerileri ve müzik koleksiyonu.
-- Seçilen parçayı tarayıcıda YouTube üzerinde arama.
-- Veritabanı gerektirmeyen misafir modu ve oturumluk geçmiş.
-- SQL Server yapılandırıldığında hesap oluşturma, giriş ve kalıcı analiz geçmişi.
-
-Fotoğraf analiz için bir dış servise yüklenmez. Kalıcı geçmiş tablosunda fotoğrafın kendisi tutulmaz; kategori, güven skoru ve zaman kaydedilir.
-
-## Depo düzeni ve eski sürüm
-
-Aktif geliştirme klasörü **`src/MoodSync`** konumudur:
-
-```text
-src/MoodSync/
-├── MoodSync.csproj          # .NET 8 Windows Forms projesi
-├── Program.cs              # Başlangıç ve ayarların yüklenmesi
-├── MainForm.cs             # Yeni arayüz ve ekran akışları
-├── Services.cs             # Analiz, veri erişimi ve parola işlemleri
-├── appsettings.json        # Örnek yapılandırma
-├── database/schema.sql     # Yeni SQL tabloları
-├── python/
-│   ├── detect.py           # JSON tabanlı analiz
-│   ├── models/model.pt     # Önceki projeden korunan model
-│   ├── requirements.txt
-│   ├── requirements-lock.txt
-│   └── test_detect.py
-├── tests/                  # C# kontrol uygulaması
-├── README.md               # Teknik kurulum
-└── VERIFICATION.md         # Yapılan / yapılmayan testler
-docs/
-├── moodsync-preview.png
-└── README-legacy.md        # Önceki proje açıklaması
-```
-
-Kökteki `Controllers`, `Models`, `Views`, `Program.cs`, `yolo_detect.py` ve ilgili varlıklar ilk sürümün kaynakları olarak korunmuştur. Yeni uygulamayı çalıştırırken **`src/MoodSync/MoodSync.csproj`** dosyasını kullanın. Eski sürümün hedefleri [arşivlenen README](docs/README-legacy.md) içinde bulunur.
-
-## Kurulum ve çalıştırma
-
-### Gereksinimler
-
-- Windows.
-- .NET 8 SDK; Visual Studio kullanılacaksa .NET masaüstü geliştirme bileşenleri.
-- Python 3.12.
-- Hesap / kalıcı geçmiş kullanılacaksa erişilebilir bir SQL Server veritabanı.
-
-### 1. Depoyu indirin ve Python ortamını hazırlayın
+Windows, .NET 8 SDK ve Python 3.12 gerekiyor.
 
 ```powershell
 git clone https://github.com/justlacia/Mood-Emotion-Detection-Project-with-CSharp-and-Python.git
-cd Mood-Emotion-Detection-Project-with-CSharp-and-Python
-cd src/MoodSync
+cd Mood-Emotion-Detection-Project-with-CSharp-and-Python/src/MoodSync
 python -m venv python/.venv
 ./python/.venv/Scripts/python.exe -m pip install -r python/requirements-lock.txt
 ```
 
-`requirements-lock.txt`, doğrulama sırasında kullanılan tam paket sürümlerini içerir. `requirements.txt` temel model bağımlılıklarını listeler.
-
-### 2. Python yolunu ayarlayın
-
-`appsettings.json` içindeki `PythonExecutable` değerini kendi sanal ortamınıza göre değiştirin:
-
-```json
-{
-  "PythonExecutable": "C:/Projects/Mood-Emotion-Detection-Project-with-CSharp-and-Python/src/MoodSync/python/.venv/Scripts/python.exe",
-  "ConnectionString": "",
-  "AnalysisTimeoutSeconds": 120
-}
-```
-
-Bu yol örnektir. Bağlantı dizesi boşken misafir modu kullanılabilir. Model dosyası `src/MoodSync/python/models/model.pt` konumundadır.
-
-### 3. Uygulamayı açın
+`appsettings.json` içindeki `PythonExecutable` alanına, oluşturduğun sanal ortamdaki `python.exe` dosyasının tam yolunu yaz. Ardından:
 
 ```powershell
 dotnet run --project MoodSync.csproj
 ```
 
-Visual Studio ile aynı `MoodSync.csproj` dosyasını açabilirsiniz. **Keşfet → Fotoğraf seç → İfadeyi analiz et** akışıyla başlayın. Net ve tek yüz içeren bir fotoğraf kullanın.
+Visual Studio kullanıyorsan `src/MoodSync/MoodSync.csproj` dosyasını açabilirsin.
 
-### 4. İsteğe bağlı SQL Server kurulumu
+Hesap ve kalıcı geçmiş için SQL Server'da `database/schema.sql` dosyasını çalıştırıp `ConnectionString` alanını ayarlaman gerekiyor. Bağlantı olmadan misafir olarak fotoğraf analizi yapılabilir.
 
-1. Kullanacağınız SQL Server veritabanını seçin.
-2. Bu veritabanında `database/schema.sql` betiğini çalıştırın.
-3. `ConnectionString` ayarını kendi sunucu ve veritabanınıza göre düzenleyin.
-4. Uygulamayı yeniden başlatıp **Hesabım** ekranından hesap oluşturun.
+[Ayrıntılı kurulum](src/MoodSync/README.md)
 
-Yeni tablolar `MoodSyncAccounts` ve `MoodSyncHistory` adlarını kullanır. Betik eski `Users` veya `MoodHistory` tablolarını değiştirmez; otomatik veri aktarımı yapmaz.
+## Mevcut durum
 
-Özel ayarlar, çalıştırılan uygulamanın yanındaki `appsettings.local.json` dosyasında tutulabilir. Bu dosya üç ayarı da içermeli ve Git'e eklenmemelidir. Ayrıntılar [teknik kurulum notlarında](src/MoodSync/README.md) açıklanmıştır.
+Müzik önerileri şimdilik ifade kategorisine göre hazır bir koleksiyondan seçiliyor. Parçalar YouTube'da aranabiliyor; uygulama içinde oynatıcı yok.
 
-## Testler ve doğrulama
+Eski verilerin ve tercih puanlarının aktarımı henüz yapılmadı. Kamera, metin analizi ve kullanıcıdan öğrenen öneriler sonraki geliştirmeler arasında. Mevcut model korunuyor; yüz ifadesi tahmini gerçek ruh halini kesin olarak göstermez.
 
-Aşağıdaki komutları `src/MoodSync` klasöründe çalıştırın:
+Derleme ve temel testler geçti. SQL Server ile canlı testler henüz yapılmadı. [Test notları](src/MoodSync/VERIFICATION.md)
 
-```powershell
-dotnet build MoodSync.csproj
-python -m unittest discover -s python -v
-dotnet run --project tests/Checks.csproj
-```
+## Önceki sürüm
 
-Bu güncellemede Windows derlemesi **0 hata, 0 uyarı** ile tamamlandı. Üç Python testi ve C# tarafındaki parola, Python hata aktarımı ve iptal kontrolleri geçti. Gerçek C# → Python → YOLO → JSON akışı örnek fotoğrafla doğrulandı. Ana ekran gerçek uygulamadan render edilerek incelendi.
-
-**SQL Server bağlantısı sağlanmadığı için hesap oluşturma, giriş ve kalıcı geçmiş canlı veritabanında test edilmedi.** Birkaç fotoğrafla yapılan denemeler modelin genel doğruluğunu ölçen bir değerlendirme değildir. Ayrıntılar [VERIFICATION.md](src/MoodSync/VERIFICATION.md) dosyasındadır.
-
-## Bilinen sınırlamalar ve sonraki adımlar
-
-- Eski veritabanı ve kullanıcı hesapları için aktarım planı hazırlanması.
-- SQL Server üzerinde uçtan uca kayıt, giriş ve geçmiş testleri.
-- Önceki müzik tercih puanlarının yeni sisteme taşınması.
-- Kullanıcı geri bildirimleriyle kişiselleşen önerilerin geliştirilmesi.
-- Modelin ayrı bir test veri kümesiyle değerlendirilmesi.
-- Farklı ekran boyutları, DPI ölçekleri ve tüm ekranların etkileşim testleri.
-- İleride kamera ve metin analizi seçeneklerinin değerlendirilmesi.
-
-Yerleşik müzik oynatıcı bulunmaz; müzik düğmeleri YouTube aramasını açar. Kamera ve metin analizi bu sürümde uygulanmamıştır.
-
-## Projenin geçmişi ve kaynak atfı
-
-Bu depo, [elifftosunn/Mood-Emotion-Detection-Project-with-CSharp-and-Python](https://github.com/elifftosunn/Mood-Emotion-Detection-Project-with-CSharp-and-Python) deposundan çatallanan önceki çalışmayı temel alır. Güncelleme, `justlacia` deposundaki `3d8a708d0ca123147e29e4c5b2b516d089d97b5f` sürümü incelenerek hazırlanmıştır.
-
-Bitirme projem kapsamında geliştirmeye devam ettiğim bu sürümde önceki kaynakların geçmişi ve model korunmuştur. Bu yenileme, modelin sıfırdan eğitildiği veya tüm özgün çalışmanın bu güncellemede üretildiği anlamına gelmez. Yeni bir lisans beyanı eklenmemiştir; özgün kaynak ve modelin kullanım koşulları ayrıca dikkate alınmalıdır.
+Proje, [elifftosunn'un önceki çalışması](https://github.com/elifftosunn/Mood-Emotion-Detection-Project-with-CSharp-and-Python) temel alınarak geliştiriliyor. [Eski README](docs/README-legacy.md) ve commit geçmişi korunuyor.
